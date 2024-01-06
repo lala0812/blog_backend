@@ -14,7 +14,8 @@ func main() {
 	server := gin.Default()
 
 	// 創建CORS處理程序
-	server.Use(router.SetCors())
+	// server.Use(router.SetCors())
+	// server.Use(router.CORSMiddleware())
 
 	// 設置路由
 	router.SetupRoutes(server)

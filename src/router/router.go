@@ -5,7 +5,6 @@ import (
 	"go_gin_example/controller"
 	"go_gin_example/envconfig"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,17 +15,32 @@ func GetUsers(c *gin.Context) {
 	})
 }
 
-func SetCors() gin.HandlerFunc {
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"} // 設置你的允許來源
-	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	config.AllowHeaders = []string{"Content-Type", "Authorization"}
-	return cors.New(config)
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Private-Network", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Category, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	}
 }
 
-func SetupRoutes(router *gin.Engine) {
-	router.Use(SetCors()) // 設定跨域
+// func SetCors() gin.HandlerFunc {
+// 	config := cors.DefaultConfig()
+// 	config.AllowOrigins = []string{"*"} // 設置你的允許來源
+// 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+// 	config.AllowHeaders = []string{"Content-Type", "Authorization"}
+// 	return cors.New(config)
+// }
 
+func SetupRoutes(router *gin.Engine) {
+	router.Use(CORSMiddleware()) // 設定跨域
+	// router.Use(SetCors()) // 設定跨域
 	// 定義路由
 	router.GET("/", GetUsers) // 讀取首頁
 
